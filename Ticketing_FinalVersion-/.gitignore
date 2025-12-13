@@ -1,0 +1,14 @@
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Logs
+*.log
+
+# Env files
+.env
+.env.local
+
+# Next.js
+.next/
+node_modules/

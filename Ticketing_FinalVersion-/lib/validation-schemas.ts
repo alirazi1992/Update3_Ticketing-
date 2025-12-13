@@ -1,6 +1,8 @@
 import * as yup from "yup"
 import type { CategoriesData } from "@/services/categories-types"
 
+const requiredMsg = "پر کردن این فیلد الزامی است"
+
 // Phone number validation for Iranian numbers
 const validatePhoneNumber = (phone: string): boolean => {
   const iranianPhoneRegex = /^(\+98|0)?9\d{9}$/
@@ -10,8 +12,8 @@ const validatePhoneNumber = (phone: string): boolean => {
 // Issue Selection Schema (Step 1)
 export const issueSelectionSchema = (categories?: CategoriesData) =>
   yup.object({
-    priority: yup.string().required("انتخاب اولویت مشکل الزامی است"),
-    mainIssue: yup.string().required("انتخاب دسته اصلی مشکل الزامی است"),
+    priority: yup.string().required("انتخاب اولویت الزامی است"),
+    mainIssue: yup.string().required("انتخاب دسته‌بندی اصلی الزامی است"),
     subIssue: yup.string().when("mainIssue", (mainIssue, schema: yup.StringSchema) => {
       const hasSubIssues =
         typeof mainIssue === "string" &&
@@ -20,10 +22,9 @@ export const issueSelectionSchema = (categories?: CategoriesData) =>
         Object.keys(categories[mainIssue].subIssues || {}).length > 0
 
       if (hasSubIssues) {
-        return schema.required("انتخاب زیر دسته الزامی است")
+        return schema.required("انتخاب زیرشاخه الزامی است")
       }
 
-      // If the selected category has no sub issues, treat this field as optional
       return schema.optional().nullable().transform((value) => value ?? "")
     }),
   })
@@ -33,63 +34,220 @@ export const ticketDetailsSchema = yup.object({
   title: yup
     .string()
     .required("عنوان تیکت الزامی است")
-    .min(5, "عنوان باید حداقل ۵ کاراکتر باشد")
-    .max(100, "عنوان نباید بیش از ۱۰۰ کاراکتر باشد"),
+    .min(5, "عنوان تیکت باید حداقل ۵ کاراکتر باشد")
+    .max(100, "عنوان تیکت نباید بیشتر از ۱۰۰ کاراکتر باشد"),
   description: yup
     .string()
-    .required("شرح مشکل الزامی است")
+    .transform((value) => (value === "" ? undefined : value))
+    .optional()
     .min(20, "شرح مشکل باید حداقل ۲۰ کاراکتر باشد")
-    .max(2000, "شرح مشکل نباید بیش از ۲۰۰۰ کاراکتر باشد"),
+    .max(2000, "شرح مشکل نباید بیشتر از ۲۰۰۰ کاراکتر باشد"),
 
-  // Optional dynamic fields - these will be validated only if present
-  deviceBrand: yup.string().optional(),
-  deviceModel: yup.string().optional(),
-  powerStatus: yup.string().optional(),
-  lastWorking: yup.string().optional(),
-  printerBrand: yup.string().optional(),
-  printerType: yup.string().optional(),
-  printerProblem: yup.string().optional(),
-  monitorSize: yup.string().optional(),
-  connectionType: yup.string().optional(),
-  displayIssue: yup.string().optional(),
-  operatingSystem: yup.string().optional(),
-  osVersion: yup.string().optional(),
-  osIssueType: yup.string().optional(),
-  softwareName: yup.string().optional(),
-  softwareVersion: yup.string().optional(),
-  applicationIssue: yup.string().optional(),
-  internetProvider: yup.string().optional(),
-  connectionIssue: yup.string().optional(),
-  wifiNetwork: yup.string().optional(),
-  deviceType: yup.string().optional(),
-  wifiIssue: yup.string().optional(),
-  networkLocation: yup.string().optional(),
-  emailProvider: yup.string().optional(),
-  emailClient: yup.string().optional(),
-  errorMessage: yup.string().optional(),
+  // Additional info fields - required when the related issue/sub-issue is selected
+  deviceBrand: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) =>
+      mainIssue === "hardware" &&
+      (!subIssue || ["computer-not-working", "printer-issues", "monitor-problems"].includes(subIssue)),
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  deviceModel: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) =>
+      mainIssue === "hardware" &&
+      (!subIssue || ["computer-not-working", "printer-issues", "monitor-problems"].includes(subIssue)),
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  powerStatus: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "computer-not-working",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  lastWorking: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "computer-not-working",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  printerBrand: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "printer-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  printerType: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "printer-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  printerProblem: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "printer-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  monitorSize: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "monitor-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  connectionType: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) =>
+      (mainIssue === "hardware" && subIssue === "monitor-problems") ||
+      (mainIssue === "network" && subIssue === "internet-connection"),
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  displayIssue: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "hardware" && subIssue === "monitor-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  operatingSystem: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "software" && subIssue === "os-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  osVersion: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "software" && subIssue === "os-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  osIssueType: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "software" && subIssue === "os-issues",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  softwareName: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string) => mainIssue === "software",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  softwareVersion: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) =>
+      mainIssue === "software" && subIssue === "application-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  applicationIssue: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) =>
+      mainIssue === "software" && subIssue === "application-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  internetProvider: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "network" && subIssue === "internet-connection",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  connectionIssue: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "network" && subIssue === "internet-connection",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  wifiNetwork: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "network" && subIssue === "wifi-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  deviceType: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "network" && subIssue === "wifi-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  wifiIssue: yup.string().when(["mainIssue", "subIssue"], {
+    is: (mainIssue: string, subIssue: string) => mainIssue === "network" && subIssue === "wifi-problems",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  networkLocation: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "network",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  emailProvider: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "email",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  emailClient: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "email",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  errorMessage: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "email",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
   emailAddress: yup.string().email("فرمت ایمیل صحیح نیست").optional(),
-  incidentTime: yup.string().optional(),
-  securitySeverity: yup.string().optional(),
-  affectedData: yup.string().optional(),
-  requestedSystem: yup.string().optional(),
-  accessLevel: yup.string().optional(),
-  accessReason: yup.string().optional(),
+  incidentTime: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "security",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  securitySeverity: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "security",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  affectedData: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "security",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  requestedSystem: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "access",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  accessLevel: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "access",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  accessReason: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "access",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
   urgencyLevel: yup.string().optional(),
-  trainingTopic: yup.string().optional(),
-  currentLevel: yup.string().optional(),
-  preferredMethod: yup.string().optional(),
-  equipmentType: yup.string().optional(),
-  maintenanceType: yup.string().optional(),
-  preferredTime: yup.string().optional(),
+  trainingTopic: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "training",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  currentLevel: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "training",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  preferredMethod: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "training",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  equipmentType: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "maintenance",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  maintenanceType: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "maintenance",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
+  preferredTime: yup.string().when("mainIssue", {
+    is: (mainIssue: string) => mainIssue === "maintenance",
+    then: (schema) => schema.required(requiredMsg),
+    otherwise: (schema) => schema.optional(),
+  }),
 })
 
 // Contact Information Schema - always required
 export const contactInfoSchema = yup.object({
   clientName: yup
     .string()
-    .required("نام و نام خانوادگی الزامی است")
+    .required("نام الزامی است")
     .min(2, "نام باید حداقل ۲ کاراکتر باشد")
-    .max(50, "نام نباید بیش از ۵۰ کاراکتر باشد"),
+    .max(50, "نام نباید بیشتر از ۵۰ کاراکتر باشد"),
 
   clientEmail: yup.string().required("ایمیل الزامی است").email("فرمت ایمیل صحیح نیست"),
 
@@ -117,8 +275,8 @@ export const generalInfoSchema = issueSelectionSchema()
 export const ticketAccessSchema = yup.object({
   ticketId: yup
     .string()
-    .required("شماره تیکت الزامی است")
-    .matches(/^TK-\d{4}-\d{3}$/, "فرمت شماره تیکت صحیح نیست (مثال: TK-2024-001)"),
+    .required("کد تیکت الزامی است")
+    .matches(/^TK-\d{4}-\d{3}$/, "فرمت کد تیکت نامعتبر است (مثال: TK-2024-001)"),
 
   email: yup.string().required("ایمیل الزامی است").email("فرمت ایمیل صحیح نیست"),
 

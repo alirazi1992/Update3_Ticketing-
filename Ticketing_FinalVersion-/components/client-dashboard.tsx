@@ -122,6 +122,8 @@ export function ClientDashboard({
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [ticketDialogOpen, setTicketDialogOpen] = useState(activeSection === "create");
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [statsDialogData, setStatsDialogData] = useState<{ title: string; tickets: Ticket[] } | null>(null);
 
   useEffect(() => {
     if (activeSection === "create") {
@@ -152,9 +154,18 @@ export function ClientDashboard({
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
+  const openTickets = userTickets.filter((t) => t.status === "open");
+  const inProgressTickets = userTickets.filter((t) => t.status === "in-progress");
+  const resolvedTickets = userTickets.filter((t) => t.status === "resolved");
+
   const handleViewTicket = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setViewDialogOpen(true);
+  };
+
+  const handleStatsClick = (title: string, ticketsList: Ticket[]) => {
+    setStatsDialogData({ title, tickets: ticketsList });
+    setStatsDialogOpen(true);
   };
 
   const handleTicketCreate = (ticket: Ticket) => {
@@ -212,7 +223,11 @@ export function ClientDashboard({
 
       {/* Statistics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card
+          role="button"
+          onClick={() => handleStatsClick("کل تیکت‌ها", userTickets)}
+          className="cursor-pointer hover:border-primary transition"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-right font-iran">
               کل تیکت‌ها
@@ -225,7 +240,11 @@ export function ClientDashboard({
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          role="button"
+          onClick={() => handleStatsClick("در انتظار پاسخ", openTickets)}
+          className="cursor-pointer hover:border-primary transition"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-right font-iran">
               در انتظار پاسخ
@@ -234,11 +253,15 @@ export function ClientDashboard({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-right font-iran">
-              {userTickets.filter((t) => t.status === "open").length}
+              {openTickets.length}
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          role="button"
+          onClick={() => handleStatsClick("در حال انجام", inProgressTickets)}
+          className="cursor-pointer hover:border-primary transition"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-right font-iran">
               در حال انجام
@@ -247,11 +270,15 @@ export function ClientDashboard({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-right font-iran">
-              {userTickets.filter((t) => t.status === "in-progress").length}
+              {inProgressTickets.length}
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card
+          role="button"
+          onClick={() => handleStatsClick("حل شده", resolvedTickets)}
+          className="cursor-pointer hover:border-primary transition"
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-right font-iran">
               حل شده
@@ -260,11 +287,64 @@ export function ClientDashboard({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-right font-iran">
-              {userTickets.filter((t) => t.status === "resolved").length}
+              {resolvedTickets.length}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={statsDialogOpen} onOpenChange={setStatsDialogOpen}>
+        <DialogContent className="max-w-3xl font-iran" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-right font-iran">
+              {statsDialogData?.title ?? "جزئیات"}
+            </DialogTitle>
+          </DialogHeader>
+          {statsDialogData?.tickets.length ? (
+            <div className="space-y-3">
+              {statsDialogData.tickets.map((ticket) => {
+                const idStr = String(ticket.id ?? "");
+                return (
+                  <div key={idStr} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1 text-right">
+                        <div className="font-semibold">{ticket.title}</div>
+                        <div className="text-xs text-muted-foreground">شناسه: {idStr}</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge className={`${statusColors[ticket.status]} font-iran`}>
+                          {statusLabels[ticket.status]}
+                        </Badge>
+                        <Badge className={`${priorityColors[ticket.priority]} font-iran`}>
+                          {priorityLabels[ticket.priority]}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>تاریخ ایجاد: {faDate(ticket.createdAt)}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-iran"
+                        onClick={() => {
+                          handleViewTicket(ticket);
+                          setStatsDialogOpen(false);
+                        }}
+                      >
+                        مشاهده تیکت
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-right font-iran">
+              تیکتی برای نمایش وجود ندارد.
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Tickets Management */}
       <Card>

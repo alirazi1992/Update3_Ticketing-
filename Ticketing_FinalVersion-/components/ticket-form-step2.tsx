@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { Controller } from "react-hook-form"
 import { Input } from "@/components/ui/input"
@@ -56,6 +56,10 @@ export function TicketFormStep2({
   }
 
   const dynamicDefs = getDefinedFields()
+  const renderError = (name: string) => {
+    const message = errors?.[name]?.message
+    return message ? <p className="text-sm text-red-500 text-right">{message}</p> : null
+  }
   const renderDynamicFields = () => {
     if (selectedIssue === "hardware") {
       if (selectedSubIssue === "computer-not-working") {
@@ -64,7 +68,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <HardDrive className="w-4 h-4" />
-                اطلاعات تکمیلی رایانه (اختیاری)
+                اطلاعات تکمیلی رایانه (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -93,6 +97,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("deviceBrand")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="deviceModel" className="text-right">
@@ -105,6 +110,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="مثال: OptiPlex 7090" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("deviceModel")}
                 </div>
               </div>
 
@@ -130,6 +136,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("powerStatus")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastWorking" className="text-right">
@@ -153,6 +160,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("lastWorking")}
                 </div>
               </div>
             </CardContent>
@@ -166,7 +174,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Printer className="w-4 h-4" />
-                اطلاعات تکمیلی چاپگر (اختیاری)
+                اطلاعات تکمیلی چاپگر (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -194,6 +202,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("printerBrand")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="printerType" className="text-right">
@@ -216,6 +225,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("printerType")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -237,10 +247,11 @@ export function TicketFormStep2({
                         <SelectItem value="ink-problem">مشکل جوهر یا تونر</SelectItem>
                         <SelectItem value="connection-issue">مشکل اتصال</SelectItem>
                         <SelectItem value="error-message">پیام خطا می‌دهد</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {renderError("printerProblem")}
               </div>
             </CardContent>
           </Card>
@@ -253,7 +264,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Monitor className="w-4 h-4" />
-                اطلاعات تکمیلی مانیتور (اختیاری)
+                اطلاعات تکمیلی مانیتور (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -281,6 +292,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("monitorSize")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="connectionType" className="text-right">
@@ -304,6 +316,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("connectionType")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -328,6 +341,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("displayIssue")}
               </div>
             </CardContent>
           </Card>
@@ -339,7 +353,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              اطلاعات تکمیلی سخت‌افزار (اختیاری)
+              اطلاعات تکمیلی سخت‌افزار (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -355,6 +369,7 @@ export function TicketFormStep2({
                     <Input {...field} placeholder="مثال: HP, Dell, ..." className="text-right" dir="rtl" />
                   )}
                 />
+                {renderError("deviceBrand")}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="deviceModel" className="text-right">
@@ -367,6 +382,7 @@ export function TicketFormStep2({
                     <Input {...field} placeholder="مدل دقیق دستگاه" className="text-right" dir="rtl" />
                   )}
                 />
+                {renderError("deviceModel")}
               </div>
             </div>
           </CardContent>
@@ -381,7 +397,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Settings className="w-4 h-4" />
-                اطلاعات تکمیلی سیستم عامل (اختیاری)
+                اطلاعات تکمیلی سیستم عامل (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -408,6 +424,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("operatingSystem")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="osVersion" className="text-right">
@@ -420,6 +437,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="مثال: 22H2, Big Sur" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("osVersion")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -445,6 +463,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("osIssueType")}
               </div>
             </CardContent>
           </Card>
@@ -457,7 +476,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Settings className="w-4 h-4" />
-                اطلاعات تکمیلی نرم‌افزار (اختیاری)
+                اطلاعات تکمیلی نرم‌افزار (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -473,6 +492,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="مثال: Microsoft Office" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("softwareName")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="softwareVersion" className="text-right">
@@ -485,6 +505,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="مثال: 2021, v3.5" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("softwareVersion")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -510,6 +531,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("applicationIssue")}
               </div>
             </CardContent>
           </Card>
@@ -521,7 +543,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              اطلاعات تکمیلی نرم‌افزار (اختیاری)
+              اطلاعات تکمیلی نرم‌افزار (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -536,6 +558,7 @@ export function TicketFormStep2({
                   <Input {...field} placeholder="نام نرم‌افزار مورد نظر" className="text-right" dir="rtl" />
                 )}
               />
+              {renderError("softwareName")}
             </div>
           </CardContent>
         </Card>
@@ -549,7 +572,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Wifi className="w-4 h-4" />
-                اطلاعات تکمیلی اتصال اینترنت (اختیاری)
+                اطلاعات تکمیلی اتصال اینترنت (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -575,6 +598,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("connectionType")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="internetProvider" className="text-right">
@@ -587,6 +611,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="مثال: ایرانسل، شاتل" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("internetProvider")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -611,6 +636,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("connectionIssue")}
               </div>
             </CardContent>
           </Card>
@@ -623,7 +649,7 @@ export function TicketFormStep2({
             <CardHeader>
               <CardTitle className="text-sm text-right flex items-center gap-2">
                 <Wifi className="w-4 h-4" />
-                اطلاعات تکمیلی Wi-Fi (اختیاری)
+                اطلاعات تکمیلی Wi-Fi (الزامی)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -639,6 +665,7 @@ export function TicketFormStep2({
                       <Input {...field} placeholder="نام شبکه (SSID)" className="text-right" dir="rtl" />
                     )}
                   />
+                  {renderError("wifiNetwork")}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="deviceType" className="text-right">
@@ -661,6 +688,7 @@ export function TicketFormStep2({
                       </Select>
                     )}
                   />
+                  {renderError("deviceType")}
                 </div>
               </div>
               <div className="space-y-2">
@@ -685,6 +713,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("wifiIssue")}
               </div>
             </CardContent>
           </Card>
@@ -696,7 +725,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Wifi className="w-4 h-4" />
-              اطلاعات تکمیلی شبکه (اختیاری)
+              اطلاعات تکمیلی شبکه (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -711,6 +740,7 @@ export function TicketFormStep2({
                   <Input {...field} placeholder="مثال: طبقه دوم، اتاق 205" className="text-right" dir="rtl" />
                 )}
               />
+              {renderError("networkLocation")}
             </div>
           </CardContent>
         </Card>
@@ -723,7 +753,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              اطلاعات تکمیلی ایمیل (اختیاری)
+              اطلاعات تکمیلی ایمیل (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -750,6 +780,7 @@ export function TicketFormStep2({
                     </Select>
                   )}
                 />
+                {renderError("emailProvider")}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="emailClient" className="text-right">
@@ -767,11 +798,12 @@ export function TicketFormStep2({
                         <SelectItem value="outlook-app">Outlook</SelectItem>
                         <SelectItem value="thunderbird">Thunderbird</SelectItem>
                         <SelectItem value="web-browser">مرورگر وب</SelectItem>
-                        <SelectItem value="mobile-app">اپ موبایل</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                          <SelectItem value="mobile-app">اپ موبایل</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {renderError("emailClient")}
               </div>
             </div>
             <div className="space-y-2">
@@ -791,6 +823,7 @@ export function TicketFormStep2({
                   />
                 )}
               />
+              {renderError("errorMessage")}
             </div>
           </CardContent>
         </Card>
@@ -803,7 +836,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Shield className="w-4 h-4 text-red-500" />
-              اطلاعات تکمیلی امنیتی (اختیاری)
+              اطلاعات تکمیلی امنیتی (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -811,12 +844,12 @@ export function TicketFormStep2({
               <Label htmlFor="incidentTime" className="text-right">
                 زمان تقریبی حادثه
               </Label>
-              <Controller
-                name="incidentTime"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value} dir="rtl">
-                    <SelectTrigger className="text-right">
+                <Controller
+                  name="incidentTime"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                      <SelectTrigger className="text-right">
                       <SelectValue placeholder="انتخاب زمان" />
                     </SelectTrigger>
                     <SelectContent>
@@ -825,15 +858,16 @@ export function TicketFormStep2({
                       <SelectItem value="yesterday">دیروز</SelectItem>
                       <SelectItem value="this-week">این هفته</SelectItem>
                       <SelectItem value="not-sure">مطمئن نیستم</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="securitySeverity" className="text-right">
-                شدت مشکل
-              </Label>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {renderError("incidentTime")}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="securitySeverity" className="text-right">
+                  شدت مشکل
+                </Label>
               <Controller
                 name="securitySeverity"
                 control={control}
@@ -851,6 +885,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("securitySeverity")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="affectedData" className="text-right">
@@ -869,6 +904,7 @@ export function TicketFormStep2({
                   />
                 )}
               />
+              {renderError("affectedData")}
             </div>
           </CardContent>
         </Card>
@@ -881,7 +917,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Key className="w-4 h-4" />
-              اطلاعات تکمیلی دسترسی (اختیاری)
+              اطلاعات تکمیلی دسترسی (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -896,6 +932,7 @@ export function TicketFormStep2({
                   <Input {...field} placeholder="نام سیستم یا نرم‌افزار" className="text-right" dir="rtl" />
                 )}
               />
+              {renderError("requestedSystem")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="accessLevel" className="text-right">
@@ -918,6 +955,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("accessLevel")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="accessReason" className="text-right">
@@ -936,6 +974,7 @@ export function TicketFormStep2({
                   />
                 )}
               />
+              {renderError("accessReason")}
             </div>
           </CardContent>
         </Card>
@@ -948,7 +987,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <GraduationCap className="w-4 h-4" />
-              اطلاعات تکمیلی آموزش (اختیاری)
+              اطلاعات تکمیلی آموزش (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -963,6 +1002,7 @@ export function TicketFormStep2({
                   <Input {...field} placeholder="چه چیزی می‌خواهید یاد بگیرید؟" className="text-right" dir="rtl" />
                 )}
               />
+              {renderError("trainingTopic")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="currentLevel" className="text-right">
@@ -985,6 +1025,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("currentLevel")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="preferredMethod" className="text-right">
@@ -1008,6 +1049,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("preferredMethod")}
             </div>
           </CardContent>
         </Card>
@@ -1020,7 +1062,7 @@ export function TicketFormStep2({
           <CardHeader>
             <CardTitle className="text-sm text-right flex items-center gap-2">
               <Wrench className="w-4 h-4" />
-              اطلاعات تکمیلی نگهداری (اختیاری)
+              اطلاعات تکمیلی نگهداری (الزامی)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -1035,6 +1077,7 @@ export function TicketFormStep2({
                   <Input {...field} placeholder="مثال: رایانه، چاپگر، سرور" className="text-right" dir="rtl" />
                 )}
               />
+              {renderError("equipmentType")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="maintenanceType" className="text-right">
@@ -1057,6 +1100,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("maintenanceType")}
             </div>
             <div className="space-y-2">
               <Label htmlFor="preferredTime" className="text-right">
@@ -1080,6 +1124,7 @@ export function TicketFormStep2({
                   </Select>
                 )}
               />
+              {renderError("preferredTime")}
             </div>
           </CardContent>
         </Card>
@@ -1116,7 +1161,7 @@ export function TicketFormStep2({
 
           <div className="space-y-2">
             <Label htmlFor="description" className="text-right">
-              شرح کامل مشکل *
+              شرح کامل مشکل (اختیاری)
             </Label>
             <Controller
               name="description"
@@ -1177,7 +1222,7 @@ export function TicketFormStep2({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-right">
             <Paperclip className="w-5 h-5" />
-            پیوست فایل (اختیاری)
+            پیوست فایل (الزامی)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1198,3 +1243,5 @@ export function TicketFormStep2({
     </div>
   )
 }
+
+
